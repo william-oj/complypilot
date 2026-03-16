@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.backend
+    env_file:
+      - ../backend/.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+      - minio
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: complypilot
+      POSTGRES_PASSWORD: complypilot
+      POSTGRES_DB: complypilot
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  minio:
+    image: minio/minio:RELEASE.2024-02-17T01-15-57Z
+    environment:
+      MINIO_ROOT_USER: complypilot
+      MINIO_ROOT_PASSWORD: complypilot
+    command: server /data
+    volumes:
+      - miniodata:/data
+
+volumes:
+  pgdata:
+  esdata:
+  miniodata:

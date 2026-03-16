@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.local
+.env.*
+*.log
+backend/dist
+backend/dist-seed
+backend/dev.db*
+backend/uploads
+backend/.tmp
+frontend/.next
+frontend/out
+.DS_Store
